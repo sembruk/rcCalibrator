@@ -11,14 +11,14 @@ const uint8_t LOW_OSCCAL_START=80;
 // New LiquidCrystal by Francisco Malpartida
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/downloads/
 // compliled with the 1.3.5 version
-#include <LiquidCrystal_I2C.h>
-LiquidCrystal_I2C lcd(LCD_I2C_ADDRESS, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
+//#include <LiquidCrystal_I2C.h>
+//LiquidCrystal_I2C lcd(LCD_I2C_ADDRESS, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 
 // LCD presense is determined at runtime
 // so the same code works with and without LCD
 bool lcd_is_present = false;
 
-const byte SQW_PIN=A3;
+const byte SQW_PIN=A2;
 
 // RTC SQW pin is configured to generate 1024 ticks/sec
 // every busy loop is 62.5 msec
@@ -27,7 +27,7 @@ const uint32_t LOOPTIME = 1000000UL*64/1024; // == 62500 usec
 void printLine(uint8_t line, int osccal, int freq) {
     char buf[40];
     buf[16]=0;
-    lcd.setCursor(0,line);
+    //lcd.setCursor(0,line);
     int p = (freq-8000)/8;
     char sign;
     if (p>0) sign='+';
@@ -36,7 +36,7 @@ void printLine(uint8_t line, int osccal, int freq) {
     p = abs(p);
     freq=(freq+5)/10;
     sprintf(buf,"%2d %d.%02dMh %c%d.%d%%", osccal, freq/100, freq%100, sign, p/10, p%10);
-    lcd.write(buf);
+    //lcd.write(buf);
 }
 
 // freq in  Khz
@@ -99,7 +99,7 @@ bool osccal_calibrate() {
     byte eep[4]={ 0x05, bestcal, (byte)(255-bestcal), 0x05};
     eeprom_update_block(eep,0,4);
 
-    if (lcd_is_present) printLine(1, bestcal,bestfreq);
+    //if (lcd_is_present) printLine(1, bestcal,bestfreq);
 
     return true;
 }
@@ -114,30 +114,31 @@ void setup() {
         Wire.write(0x0E);
         Wire.write(0b01001000); // SQW 1024Hz is set
         Wire.endTransmission();
-        pinMode(SQW_PIN,INPUT_PULLUP);
+        //pinMode(SQW_PIN,INPUT_PULLUP);
+        pinMode(SQW_PIN,INPUT);
         rtc_is_present = true;
     }
 
-    Wire.beginTransmission(LCD_I2C_ADDRESS);
-    if (Wire.endTransmission() == 0) { // LCD is present
-        lcd_is_present = true;
-        lcd.begin(16,2);  // initialize the lcd
-        lcd.clear();
-        lcd.backlight();
-    }
+    //Wire.beginTransmission(LCD_I2C_ADDRESS);
+    //if (Wire.endTransmission() == 0) { // LCD is present
+    //    lcd_is_present = true;
+    //    lcd.begin(16,2);  // initialize the lcd
+    //    lcd.clear();
+    //    lcd.backlight();
+    //}
 
     if (!rtc_is_present) {
         // We can't do much
         // but if LCD is connected (unlikely) we print a message
-        if (lcd_is_present) {
-            lcd.setCursor(0,0); // first line
-            lcd.write("DS3231 not found");
-        }
+        //if (lcd_is_present) {
+        //    lcd.setCursor(0,0); // first line
+        //    lcd.write("DS3231 not found");
+        //}
         while(1);
     }
 
     int start_freq = frequency();
-    if (lcd_is_present) printLine(0, OSCCAL, start_freq);
+    //if (lcd_is_present) printLine(0, OSCCAL, start_freq);
     if (!osccal_calibrate()) {
         // We need to search optimal OSCCAL in the range 0-127
         // OSCCAL is set to LOW_OSCCAL_START and we run osccal_calibrate again
