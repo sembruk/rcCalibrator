@@ -117,6 +117,7 @@ void setup() {
         //pinMode(SQW_PIN,INPUT_PULLUP);
         pinMode(SQW_PIN,INPUT);
         rtc_is_present = true;
+        eeprom_update_block({1},0,1);
     }
 
     //Wire.beginTransmission(LCD_I2C_ADDRESS);
@@ -134,6 +135,7 @@ void setup() {
         //    lcd.setCursor(0,0); // first line
         //    lcd.write("DS3231 not found");
         //}
+        eeprom_update_block({0},0,1);
         while(1);
     }
 

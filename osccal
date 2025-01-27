@@ -16,16 +16,16 @@ avrdude = "/opt/arduino-1.8.12/hardware/tools/avr/bin/avrdude"
 avrdude_config_file = "/opt/arduino-1.8.12/hardware/tools/avr/etc/avrdude.conf"
 
 #subprocess.call(["./calibrator/burncalibrator.sh"])
-subprocess.call([avrdude, "-q", "-C", avrdude_config_file, "-p", "atmega328p", "-c", "stk500v1", "-b", "19200", "-P", "/dev/ttyUSB1", "-e", "-V", "-U", "lfuse:w:0xE2:m", "-U", "hfuse:w:0xD2:m", "-U", "efuse:w:0xfd:m", "-U", "eeprom:w:0xff:m", "-U", "flash:w:./calibrator/calibrator.hex"])
+subprocess.call([avrdude, "-q", "-C", avrdude_config_file, "-p", "atmega328p", "-c", "stk500v1", "-b", "19200", "-P", "/dev/ttyUSB0", "-e", "-V", "-U", "lfuse:w:0xE2:m", "-U", "hfuse:w:0xD2:m", "-U", "efuse:w:0xfd:m", "-U", "eeprom:w:0xff:m", "-U", "flash:w:./calibrator/calibrator.hex"])
 
 sys.stderr.write("Waiting...\n")
-time.sleep(3)
+time.sleep(10)
 
 sys.stderr.write("########################################################\n")
 sys.stderr.write("################# reading result #######################\n")
 sys.stderr.write("########################################################\n")
 
-p=subprocess.Popen([avrdude, "-q", "-C", avrdude_config_file, "-p", "atmega328p", "-c", "stk500v1", "-b", "19200", "-P", "/dev/ttyUSB1", "-U", "eeprom:r:-:h"],
+p=subprocess.Popen([avrdude, "-q", "-C", avrdude_config_file, "-p", "atmega328p", "-c", "stk500v1", "-b", "19200", "-P", "/dev/ttyUSB0", "-U", "eeprom:r:-:h"],
 stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 
 out = p.communicate()[0]
@@ -33,7 +33,7 @@ if out=='':
     sys.stderr.write("No eeprom data\n")
     sys.exit(1)
 
-o = [ int(x,16) for x in  out.split(",")[:4] ]
+o = [ int(x,16) for x in  out.decode().split(",")[:4] ]
 
 if o[0]==5 and o[3]==5 and o[1]+o[2]==255:
     optimal_osccal = o[1]
@@ -44,4 +44,5 @@ if o[0]==5 and o[3]==5 and o[1]+o[2]==255:
         print(optimal_osccal)
 else:
     sys.stderr.write("No OSCCAL found in eeprom\n")
+    print(o)
     sys.exit(1)
