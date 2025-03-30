@@ -42,6 +42,9 @@ if o[0]==5 and o[3]==5 and o[1]+o[2]==255:
         subprocess.call(["make","isp","OPTIMAL_OSCCAL_VALUE="+str(optimal_osccal)])
     else:
         print(optimal_osccal)
+elif o[0] == 2 and o[1] == 255 and o[2] == 255:
+    sys.stderr.write("No response from DS3231 chip\n")
+    print(o)
 else:
     sys.stderr.write("No OSCCAL found in eeprom\n")
     print(o)

@@ -117,7 +117,8 @@ void setup() {
         //pinMode(SQW_PIN,INPUT_PULLUP);
         pinMode(SQW_PIN,INPUT);
         rtc_is_present = true;
-        eeprom_update_block({1},0,1);
+        byte eep[1] = {1};
+        eeprom_update_block(eep,0,1);
     }
 
     //Wire.beginTransmission(LCD_I2C_ADDRESS);
@@ -135,11 +136,12 @@ void setup() {
         //    lcd.setCursor(0,0); // first line
         //    lcd.write("DS3231 not found");
         //}
-        eeprom_update_block({0},0,1);
+        byte eep[1] = {2};
+        eeprom_update_block(eep,0,1);
         while(1);
     }
 
-    int start_freq = frequency();
+    //int start_freq = frequency();
     //if (lcd_is_present) printLine(0, OSCCAL, start_freq);
     if (!osccal_calibrate()) {
         // We need to search optimal OSCCAL in the range 0-127
